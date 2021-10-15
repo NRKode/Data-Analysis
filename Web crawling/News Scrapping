@@ -1,0 +1,52 @@
+# 텍스트 파일이 존재하지 않아 이데일리 뉴스 크롤링으로 데이터 생성
+from bs4 import BeautifulSoup
+from datetime import datetime
+import requests
+import pandas as pd
+import re
+
+url = 'https://search.naver.com/search.naver?where=news&sm=tab_jum&query=%EC%A3%BC%EC%8B%9D+%EC%83%81%EC%9E%A5'
+response=requests.get(url)
+html=response.text
+soup=BeautifulSoup(html,'html.parser')
+
+title_text=[] #제목 가져오기
+atags=soup.select('.news_tit')
+for atag in atags:
+    title_text.append(atag.text)
+title_text
+
+link_text=[] #하이퍼링크 가져오기
+atags=soup.select('.news_tit')
+for atag in atags:
+    link_text.append(atag['href'])
+link_text
+
+source_text=[]
+source_lists=soup.select('.info.press')
+for source_list in source_lists:
+    source_text.append(source_list.text)
+source_text
+
+ # 이데일리 에서 코로나 뉴스 크롤링
+ urls = ['https://www.edaily.co.kr/news/read?newsId=04024566625964408&mediaCodeNo=257', 
+       'https://www.edaily.co.kr/news/read?newsId=03519446625964408&mediaCodeNo=257',
+       'https://www.edaily.co.kr/news/read?newsId=03883526625964408&mediaCodeNo=257']
+
+# 크롤링 다듬는 함수 제작
+def clean_text(text):
+  content = text
+  cleaned_text = re.sub('[a-zA-z]', '', str(content))
+  cleaned_text = re.sub('[\{\}\[\]\/?.,;:|\)*~`!^\-_+<>▶▽♡◀━@\#$%&\\\=\(\'\"ⓒ(\n)(\t)\r]', '', cleaned_text)
+  cleaned_text = re.sub(' {2,}', ' ', cleaned_text)
+  return cleaned_text
+
+news_text = []
+for url in urls:
+  response = requests.get(url)
+  html = response.text
+  soup = BeautifulSoup(html, 'html.parser')
+  atags = soup.select('#contents > section.center1080.position_r > section.aside_left > div.article_news > div.newscontainer > div.news_body')
+  for atag in atags:
+    news_text.append(clean_text(atag.text)) ## 본문과 제목을 가져온다
+news_text
