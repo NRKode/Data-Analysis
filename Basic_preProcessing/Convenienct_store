@@ -1,0 +1,44 @@
+from google.colab import files
+uploaded = files.upload()
+
+data = pd.read_csv('convenient_store_ansi.csv',encoding='cp949')
+data.head(8) #8줄 확인하기
+
+data.info() #dataframe 형태 저장 및 레코드수 (177), 컬럼 수(7), 용량 확인
+
+data.describe() #빈도,평균,편차,최소,최대,25/50/75% 확인_숫자에 대해서만 하는 것 같다.
+
+data.area.describe()
+
+highwage=data[data.hourly_wage>=6000]
+highwage.head()
+
+highwage=data[(data.hourly_wage>=6000)&(data.area1=='강남구')]
+highwage.head()
+
+highwage=data[(data.hourly_wage>=6000)&(data.area1=='강남구')&(data.company.str.contains('세븐일레븐'))]
+highwage.head()
+
+data['highwage']=data.hourly_wage>6000 #조건문: True,False 로 적용된다. 새로운 컬럼이 생성된다.
+data.head()
+
+highwage=data[(data.hourly_wage>=6000)&(data.area1=='강남구')] #새로운 컬럼이 계속 적용되어 있다.
+highwage.head()
+
+data[data.highwage==True].describe() #True 에 대한 data 특성을 확인한다.
+
+data_re=data[data.highwage==True][['area1','hourly_wage']] #True 에 대해 area, hourly_wage 에 대해 정리하고
+data_re=data_re.sort_values(by='hourly_wage',ascending=0) #hourly_wage 로 오름차순 정렬한다.
+data_re.head(8) #상위 8개만 보인다.
+
+data_re.to_csv('data.csv',index='False') #csv로 저장한다. index 는 데이터에 대해 색인 처리를 할 지 옵션 설정을 하는 것으로, True 설정을 하면 열 하나가 추가되고 넘버링된다.
+
+data.hourly_wage.hist(bins=10) #10구간으로 히스토그램 시각화
+
+data.boxplot(column='hourly_wage',by='name')
+
+#import matplotlib
+#font_name=matplotlib.font_manager.FontProperties(fname='C:/windows/Fonts/Corbel.ttf').get_name()
+#matplotlib.rc('font',family=font_name)
+#print(font_name) #한글인 경우 폰트 설정이 가능하다는데.. 영어는 안 되나? 다시 확인하기.
+
